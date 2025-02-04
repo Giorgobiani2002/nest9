@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
     MongooseModule.forFeature([{name: 'user', schema: userSchema}]),
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET,
+      secret: "rame",
     })
   ],
   controllers: [AuthController],
