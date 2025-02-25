@@ -15,12 +15,30 @@ export class PostsService {
     // private userService: UsersService
   ){}
 
-  async create( userId: string, createPostDto: CreatePostDto) {
-    const user = await this.userModel.findById(userId)
-    if(!user) throw new NotFoundException('user not found')
-    const newPost = await this.postModel.create({...createPostDto, user: user._id})
-    await this.userModel.findByIdAndUpdate(user._id, {$push: {posts: newPost._id}})
-    return newPost
+  async create(userId: string, createPostDto: CreatePostDto) {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+  
+    
+    const limitsOfPosts = {
+      free: 10,
+      basic: 100,
+      premium: 300,
+    };
+  
+    const userPostsCount = await this.postModel.countDocuments({ user: user._id });
+  
+    
+    if (userPostsCount >= limitsOfPosts[user.subscriptionPlan]) {
+      throw new BadRequestException(
+        `You have reached your post limit for the ${user.subscriptionPlan} plan`
+      );
+    }
+  
+    const newPost = await this.postModel.create({ ...createPostDto, user: user._id });
+    await this.userModel.findByIdAndUpdate(user._id, { $push: { posts: newPost._id } });
+  
+    return newPost;
   }
 
   findAll() {

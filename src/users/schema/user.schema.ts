@@ -7,13 +7,17 @@ export class User {
   @Prop({ type: String })
   fullName: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, unique: true, required: true })
   email: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, required: true })
   password: string;
+
   @Prop({ type: String, enum: Role, default: Role.USER })
   role: string;
+
+  @Prop({ type: String, enum: ['free', 'basic', 'premium'], default: 'free' })
+  subscriptionPlan: string; 
 
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'post', default: [] })
   posts: mongoose.Schema.Types.ObjectId[];
