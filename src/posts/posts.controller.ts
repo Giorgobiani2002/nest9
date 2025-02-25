@@ -15,7 +15,10 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { HasUserId } from './guards/hasUserId.guard';
 import { IsAuthGuard } from 'src/auth/auth.guard';
 import { User } from 'src/users/users.decorator';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+
+@ApiBearerAuth()
 @Controller('posts')
 @UseGuards(IsAuthGuard)
 export class PostsController {
