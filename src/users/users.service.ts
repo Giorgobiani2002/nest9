@@ -43,40 +43,40 @@ export class UsersService {
     if (tokenId !== id && role !== 'admin') {
       throw new UnauthorizedException('Permission denied');
     }
-  
+
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid ID');
     }
-  
-    const updatedUser = await this.usersModel.findByIdAndUpdate(id, updateUserDto, {
-      new: true,
-    });
-  
+
+    const updatedUser = await this.usersModel.findByIdAndUpdate(
+      id,
+      updateUserDto,
+      {
+        new: true,
+      },
+    );
+
     if (!updatedUser) {
       throw new NotFoundException('User not found');
     }
-  
+
     return updatedUser;
   }
-  
 
   async remove(role: string, tokenId: string, id: string) {
-    
     if (role !== 'admin' && tokenId !== id) {
       throw new UnauthorizedException('Permission denied');
     }
-  
-    
+
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid ID');
     }
-  
-    
+
     const deletedUser = await this.usersModel.findByIdAndDelete(id);
     if (!deletedUser) {
       throw new NotFoundException('User not found');
     }
-  
+
     return deletedUser;
   }
 
@@ -85,5 +85,12 @@ export class UsersService {
       $push: { posts: postId },
     });
     return updateUser;
+  }
+  async getByEmail(email: string): Promise<User> {
+    const user = await this.usersModel.findOne({ email });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }
