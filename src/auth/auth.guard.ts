@@ -2,32 +2,29 @@ import { BadRequestException, CanActivate, ExecutionContext, Injectable, Unautho
 import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
-export class IsAuthGuard implements CanActivate{
-    constructor(private jwtService: JwtService){}
+export class IsAuthGuard implements CanActivate {
+    constructor(private jwtService: JwtService) {}
 
-    async canActivate(context: ExecutionContext): Promise<boolean>  {
-        try{
-            const request = context.switchToHttp().getRequest()
-            const token = this.getTokenFromHeader(request.headers)
-            if(!token) throw new BadRequestException('token is not provided')
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+        try {
+            const request = context.switchToHttp().getRequest();
+            const token = this.getTokenFromHeader(request.headers);
+            if (!token) throw new BadRequestException('Token is not provided');
+
+            const payLoad = await this.jwtService.verify(token);
             
-            const payLoad = await this.jwtService.verify(token)
-            request.userId = payLoad.userId
-
-            return true
-        }catch(e){
-            throw new UnauthorizedException('permition dined')
+            request.user = payLoad; 
+            return true;
+        } catch (e) {
+            throw new UnauthorizedException('Permission denied');
         }
-        
     }
 
-    getTokenFromHeader(headers){
-        const authorization = headers['authorization']
-        if(!authorization) return null
+    getTokenFromHeader(headers) {
+        const authorization = headers['authorization'];
+        if (!authorization) return null;
 
-        const [type, token] = authorization.split(' ')
-        
-        return type === 'Bearer' ? token : null 
+        const [type, token] = authorization.split(' ');
+        return type === 'Bearer' ? token : null;
     }
 }
-

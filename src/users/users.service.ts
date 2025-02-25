@@ -40,23 +40,43 @@ export class UsersService {
     id: string,
     updateUserDto: UpdateUserDto,
   ) {
-    if (tokenId !== id && role !== 'admin')
-      throw new UnauthorizedException('permition dineid');
-    if (!isValidObjectId(id)) throw new BadRequestException('Invaid Id');
-    const updatedUser = await this.usersModel.findByIdAndUpdate(
-      id,
-      updateUserDto,
-      { new: true },
-    );
-    if (!updatedUser) throw new BadRequestException('not found');
+    if (tokenId !== id && role !== 'admin') {
+      throw new UnauthorizedException('Permission denied');
+    }
+  
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+  
+    const updatedUser = await this.usersModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true,
+    });
+  
+    if (!updatedUser) {
+      throw new NotFoundException('User not found');
+    }
+  
     return updatedUser;
   }
+  
 
-  async remove(id: string) {
-    if (!isValidObjectId(id)) throw new BadRequestException('Invaid Id');
+  async remove(role: string, tokenId: string, id: string) {
+    
+    if (role !== 'admin' && tokenId !== id) {
+      throw new UnauthorizedException('Permission denied');
+    }
+  
+    
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+  
+    
     const deletedUser = await this.usersModel.findByIdAndDelete(id);
-    if (!deletedUser) throw new BadRequestException('user not found');
-
+    if (!deletedUser) {
+      throw new NotFoundException('User not found');
+    }
+  
     return deletedUser;
   }
 

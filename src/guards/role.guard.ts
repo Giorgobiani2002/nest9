@@ -6,20 +6,19 @@ export class RoleGuard implements CanActivate{
     constructor(private jwtService: JwtService){}
 
     async canActivate(context: ExecutionContext): Promise<boolean>  {
-        try{
-            const request = context.switchToHttp().getRequest()
-            const token = this.getTokenFromHeader(request.headers)
-            if(!token) throw new BadRequestException('token is not provided')
-            
-            const payLoad = await this.jwtService.verify(token)
-            request.role = payLoad.role
-
-            return true
-        }catch(e){
-            throw new UnauthorizedException('permition dined')
+        try {
+          const request = context.switchToHttp().getRequest();
+          const token = this.getTokenFromHeader(request.headers);
+          if (!token) throw new BadRequestException('Token is not provided');
+      
+          const payload = await this.jwtService.verify(token);
+          request.user = { userId: payload.userId, role: payload.role }; 
+      
+          return true;
+        } catch (e) {
+          throw new UnauthorizedException('Permission denied');
         }
-        
-    }
+      }
 
     getTokenFromHeader(headers){
         const authorization = headers['authorization']

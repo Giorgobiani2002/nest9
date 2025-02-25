@@ -9,9 +9,10 @@ import { User } from 'src/users/users.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('sign-up')
-  signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
+  @Post('signup')
+  async signUp(@Req() request, @Body() signUpDto: SignUpDto) {
+    const requestUserRole = request.user?.role || 'user';
+    return this.authService.signUp(requestUserRole, signUpDto);
   }
 
   @Post('sign-in')

@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { HasUserId } from './guards/hasUserId.guard';
 import { IsAuthGuard } from 'src/auth/auth.guard';
+import { User } from 'src/users/users.decorator';
 
 @Controller('posts')
 @UseGuards(IsAuthGuard)
@@ -11,8 +22,8 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Req() request,  @Body() createPostDto: CreatePostDto) {
-    const userId = request.userId
+  create(@Req() request, @Body() createPostDto: CreatePostDto) {
+    const userId = request.userId;
     return this.postsService.create(userId, createPostDto);
   }
 
@@ -23,17 +34,20 @@ export class PostsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+    return this.postsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  async update(
+    @User() user,
+    @Param('id') postId: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    return this.postsService.update(user.id, user.role, postId, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@Req() request,  @Param('id') id: string) {
-    const userId = request.userId
-    return this.postsService.remove(userId, id);
+  async remove(@User() user, @Param('id') postId: string) {
+    return this.postsService.remove(user.id, user.role, postId);
   }
 }
